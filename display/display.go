@@ -2,49 +2,34 @@ package display
 
 import (
 	"snake/customerror"
-	"snake/users"
+	"snake/players"
 
 	"github.com/gdamore/tcell/v2"
 	tview "github.com/rivo/tview"
 )
 
 type Display struct {
-	App        *tview.Application
-	Pages      *tview.Pages
-	Players    []users.Player
-	MainFlex   *tview.Flex
-	GameFlex   *tview.Flex
-	RecordFlex *tview.Flex
-	PlayerName string
+	app       *tview.Application
+	mainBlock *tview.Flex
+	wall      *tview.Box
+	GameDisplay
+	RecordDisplay
 }
 
+// константы для хранения цвета
 const (
-	menu    = "Menu"
-	addUser = "Add user"
+	cw = tcell.ColorWhite
+	cb = tcell.ColorBlack
 )
 
+// Displaying функция запуска графического приложения с главного меню
 func (d *Display) Displaying() {
-	d.Players = users.GetPlayers() // получаем игроков
-	d.App = tview.NewApplication() // Графическое приложение
-	d.Pages = tview.NewPages()     // init pages
+	d.app = tview.NewApplication() // Графическое приложение
 
-	// d.Pages.AddPage("Menu", d.MainFlex, false, false)
-
-	d.gameFlex()   // init game flex
-	d.recordFlex() // init record flex
-
-	a := tview.NewBox().
-		SetBackgroundColor(tcell.ColorWhite)
-
-	d.MainFlex = tview.NewFlex().
-		SetDirection(tview.FlexColumn). // делим жкран на две части
-		// и добовляем элементы:
-		AddItem(d.GameFlex, 0, 2, true).
-		AddItem(a, 1, 0, false).
-		AddItem(d.RecordFlex, 0, 1, false)
+	d.remote() // пульт управления нажатий клавиш
 
 	// запуск приложения
-	if err := d.App.SetRoot(d.MainFlex, true).Run(); err != nil {
+	if err := d.app.SetRoot(d.initMain(), true).Run(); err != nil {
 		panic(customerror.ErrorString(customerror.CustomError{
 			Message: "Приложение упало при запуске",
 			Error:   err,
@@ -52,57 +37,35 @@ func (d *Display) Displaying() {
 	}
 }
 
-func (d *Display) gameFlex() {
-	var (
-		game = createTextView("GAME").
-			SetTextStyle(tcell.StyleDefault.
-				Background(tcell.ColorBlack).
-				Bold(true))
-		name  = playerEnterName()
-		save  = createTextView("Press (Ent) to save")
-		help  = createTextView("Press (h) to help")
-		start = createTextView("Press (s) to start")
-		quit  = createTextView("Press (q) to quit")
-	)
-
-	d.GameFlex = tview.NewFlex().
-		SetDirection(tview.FlexRow).
-		AddItem(game, 4, 2, false).
-		AddItem(name, 2, 1, true).
-		AddItem(save, 2, 1, false).
-		AddItem(help, 2, 1, false).
-		AddItem(start, 2, 1, false).
-		AddItem(quit, 0, 1, false)
+// initMain инициализация главного блока
+func (d *Display) initMain() *tview.Flex {
+	d.mainBlock = tview.NewFlex().
+		SetDirection(tview.FlexColumn).
+		AddItem(d.GameDisplay.init(), 0, 2, true).
+		AddItem(d.initWall(), 1, 0, false).
+		AddItem(d.RecordDisplay.init(), 0, 1, false)
+	return d.mainBlock
 }
 
-func playerEnterName() *tview.Flex {
-	name := tview.NewInputField().
-		SetLabel("Enter name: ").
-		SetLabelColor(tcell.ColorWhite).
-		SetFieldBackgroundColor(tcell.ColorBlack)
-
-	return tview.NewFlex().
-		AddItem(tview.NewBox(), 0, 1, false).
-		AddItem(name, 0, 4, true).
-		AddItem(tview.NewBox(), 0, 1, false)
+// initWall стенка для разделения основных блоков
+func (d Display) initWall() *tview.Box {
+	d.wall = tview.NewBox().SetBackgroundColor(cw)
+	return d.wall
 }
 
-func (d *Display) recordFlex() {
-	var (
-		records = createTextView("RECORDS").
-			SetTextStyle(tcell.StyleDefault.
-				Background(tcell.ColorBlack).
-				Bold(true))
-	)
-
-	d.RecordFlex = tview.NewFlex().
-		SetDirection(tview.FlexRow).
-		AddItem(records, 0, 1, false)
-}
-
-func createTextView(text string) *tview.TextView {
-	return tview.NewTextView().
-		SetText(text).
-		SetTextColor(tcell.ColorWhite).
-		SetTextAlign(tview.AlignCenter)
+// remote пульт управления нажатий
+func (d *Display) remote() {
+	d.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'q' && !d.GameDisplay.inputName.HasFocus() {
+			d.app.Stop()
+		} else if event.Key() == tcell.KeyEnter && d.GameDisplay.inputName.HasFocus() {
+			d.app.SetFocus(d.RecordDisplay.block)
+		} else if event.Key() == tcell.KeyTAB {
+			d.app.SetFocus(d.GameDisplay.inputName)
+		} else if event.Rune() == 's' {
+			// при запуске игры сохроняем имя игрока в файл
+			players.WritePlayer(players.NewPlayer(d.GameDisplay.inputName.GetText()))
+		}
+		return event
+	})
 }
