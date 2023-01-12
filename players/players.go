@@ -35,7 +35,7 @@ func NewPlayer(name string) *Player {
 }
 
 // GetName получить имя
-func (p *Player) GetName(name string) string {
+func (p *Player) GetName() string {
 	return p.name
 }
 
