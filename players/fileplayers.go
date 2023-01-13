@@ -11,6 +11,7 @@ import (
 
 // userFileName имя файла с даными о игроках
 const userFileName = "data/players.txt"
+const dirName = "data" // dirName константа для имени папки хранилища
 
 // createStateFile создат файл для хранения данных о игроках
 func createStateFile() {
@@ -120,4 +121,16 @@ func FindPlayer(name string) (*Player, bool) {
 	}
 
 	return &Player{}, false
+}
+
+func CheckDir() {
+	if _, err := os.Stat(dirName); err != nil {
+		if err := os.Mkdir(dirName, 0755); err != nil {
+			panic(customerror.ErrorString(customerror.CustomError{
+				Message: "Не удалось создать папку",
+				Error:   err,
+			}))
+		}
+		createStateFile()
+	}
 }

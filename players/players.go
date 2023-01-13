@@ -1,8 +1,6 @@
 package players
 
 import (
-	"errors"
-	"os"
 	"snake/customerror"
 	"strings"
 )
@@ -18,16 +16,10 @@ func NewPlayer(name string) *Player {
 	// вырезаем все пробелы из имени игрока
 	userName := strings.Replace(name, " ", "_", -1)
 
-	// проверяем файл на наличие
-	if _, err := os.Stat(userFileName); errors.Is(err, os.ErrNotExist) {
-		// в случае отсутствия создаем новый
-		createStateFile()
-	}
-
 	// ищем пользователя с таким же именем, чтобы не создавать путаницу
 	if _, p := FindPlayer(name); p {
 		panic(customerror.ErrorString(customerror.CustomError{
-			Message: "Пользователь с таким именем уже сущетвует",
+			Message: "Пользователь с таким именем уже существует",
 		}))
 	}
 
