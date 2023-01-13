@@ -52,13 +52,25 @@ func (r *RecordDisplay) createList() *tview.List {
 		return playerList[i].GetBestScore() > playerList[j].GetBestScore()
 	})
 
-	for i := 0; i < 6; i++ {
-		var currentPlayer = playerList[i]
-		if currentPlayer.GetBestScore() > 0 {
-			var player = fmt.Sprintf(
-				"%s - %d\n", currentPlayer.GetName(), currentPlayer.GetBestScore(),
-			)
-			r.bestPlayers.AddItem(player, "", tcell.RuneVLine, nil)
+	if len(playerList) >= 5 {
+		for i := 0; i < 6; i++ {
+			var currentPlayer = playerList[i]
+			if currentPlayer.GetBestScore() > 0 {
+				var player = fmt.Sprintf(
+					"%s - %d\n", currentPlayer.GetName(), currentPlayer.GetBestScore(),
+				)
+				r.bestPlayers.AddItem(player, "", tcell.RuneVLine, nil)
+			}
+		}
+	} else {
+		for i := 0; i < len(playerList); i++ {
+			var currentPlayer = playerList[i]
+			if currentPlayer.GetBestScore() > 0 {
+				var player = fmt.Sprintf(
+					"%s - %d\n", currentPlayer.GetName(), currentPlayer.GetBestScore(),
+				)
+				r.bestPlayers.AddItem(player, "", tcell.RuneVLine, nil)
+			}
 		}
 	}
 
