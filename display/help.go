@@ -12,6 +12,6 @@ func (h *HelpModal) init() *tview.Modal {
 	h.modal = tview.NewModal().
 		SetBackgroundColor(cb)
 	h.modal.SetBorderColor(cw)
-	h.modal.SetText("I'm sorry, but it's nothing\n;(\nPress (q) to back")
+	h.modal.SetText("I'm sorry, but it's nothing\n;(\nPress (c) to back")
 	return h.modal
 }
