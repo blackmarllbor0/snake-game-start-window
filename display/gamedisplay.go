@@ -16,7 +16,7 @@ type GameDisplay struct {
 // init инициализирует блок
 func (g *GameDisplay) init() *tview.Flex {
 	var (
-		save  = g.createAction("Ent", "save")
+		save  = g.createAction("Ent", "save/enter")
 		help  = g.createAction("h", "help")
 		start = g.createAction("s", "start")
 		quit  = g.createAction("q", "quit")
