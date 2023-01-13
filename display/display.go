@@ -55,20 +55,27 @@ func (d *Display) initMain() *tview.Flex {
 }
 
 // initWall стенка для разделения основных блоков
-func (d Display) initWall() *tview.Box {
+func (d *Display) initWall() *tview.Box {
 	d.wall = tview.NewBox().SetBackgroundColor(cw)
 	return d.wall
+}
+
+func (d *Display) getItemInMainBlock() bool {
+	if d.mainBlock.GetItemCount() == 2 {
+		return true
+	}
+	return false
 }
 
 // remote пульт управления нажатий
 func (d *Display) remote() {
 	d.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Rune() == 'q' && !d.GameDisplay.inputName.HasFocus() && !d.HelpModal.modal.HasFocus() {
+		if event.Rune() == 'q' &&
+			!d.GameDisplay.inputName.HasFocus() &&
+			!d.getItemInMainBlock() {
 			d.app.Stop()
 		} else if event.Key() == tcell.KeyEnter && d.GameDisplay.inputName.HasFocus() {
 			d.app.SetFocus(d.RecordDisplay.block)
-		} else if event.Key() == tcell.KeyTAB {
-			d.app.SetFocus(d.GameDisplay.inputName)
 		} else if event.Rune() == 's' {
 			// при запуске игры сохроняем имя игрока в файл
 			players.WritePlayer(players.NewPlayer(d.GameDisplay.inputName.GetText()))
@@ -76,8 +83,10 @@ func (d *Display) remote() {
 		} else if event.Rune() == 'h' && !d.GameDisplay.inputName.HasFocus() {
 			d.mainBlock.AddItem(d.HelpModal.init(), 0, 0, true)
 			d.app.SetFocus(d.HelpModal.modal)
-		} else if event.Rune() == 'q' && d.HelpModal.modal.HasFocus() {
+		} else if event.Rune() == 'c' && !d.getItemInMainBlock() {
 			d.mainBlock.RemoveItem(d.HelpModal.modal)
+		} else if event.Key() == tcell.KeyEnter && !d.GameDisplay.inputName.HasFocus() {
+			d.app.SetFocus(d.GameDisplay.inputName)
 		}
 		return event
 	})
