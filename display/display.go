@@ -72,10 +72,6 @@ func (d *Display) getItemInMainBlock() bool {
 	return false
 }
 
-func (d *Display) SwitchToGamePage() {
-	d.pages.SwitchToPage(game)
-}
-
 // remote пульт управления нажатий
 func (d *Display) remote() {
 	d.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
