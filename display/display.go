@@ -76,15 +76,19 @@ func (d *Display) remote() {
 			d.app.Stop()
 		} else if event.Key() == tcell.KeyEnter && d.GameDisplay.inputName.HasFocus() {
 			d.app.SetFocus(d.RecordDisplay.block)
-		} else if event.Rune() == 's' {
+			d.GameDisplay.validateInput() // имя должно быть не меньше 2 символов
+		} else if event.Rune() == 's' && !d.GameDisplay.inputName.HasFocus() {
 			// при запуске игры сохроняем имя игрока в файл
 			players.WritePlayer(players.NewPlayer(d.GameDisplay.inputName.GetText()))
 			d.pages.SwitchToPage("game")
 		} else if event.Rune() == 'h' && !d.GameDisplay.inputName.HasFocus() {
-			d.mainBlock.AddItem(d.HelpModal.init(), 0, 0, true)
-			d.app.SetFocus(d.HelpModal.modal)
+			if d.mainBlock.GetItemCount() < 4 {
+				d.mainBlock.AddItem(d.HelpModal.init(), 0, 0, true)
+				d.app.SetFocus(d.HelpModal.modal)
+			}
 		} else if event.Rune() == 'c' && !d.getItemInMainBlock() {
 			d.mainBlock.RemoveItem(d.HelpModal.modal)
+			d.app.SetFocus(d.RecordDisplay.block)
 		} else if event.Key() == tcell.KeyEnter && !d.GameDisplay.inputName.HasFocus() {
 			d.app.SetFocus(d.GameDisplay.inputName)
 		}
