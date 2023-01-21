@@ -1,7 +1,6 @@
 package players
 
 import (
-	"snake/customerror"
 	"strings"
 )
 
@@ -15,14 +14,6 @@ type Player struct {
 func NewPlayer(name string) *Player {
 	// вырезаем все пробелы из имени игрока
 	userName := strings.Replace(name, " ", "_", -1)
-
-	// ищем пользователя с таким же именем, чтобы не создавать путаницу
-	if _, p := FindPlayer(name); p {
-		panic(customerror.ErrorString(customerror.CustomError{
-			Message: "Пользователь с таким именем уже существует",
-		}))
-	}
-
 	return &Player{name: userName, lastScore: 0, bestScore: 0}
 }
 
