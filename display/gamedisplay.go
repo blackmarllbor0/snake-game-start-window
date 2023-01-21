@@ -61,6 +61,14 @@ func (g *GameDisplay) createLabel() *tview.TextView {
 	return g.label
 }
 
+func (g *GameDisplay) validateInput() {
+	if len(g.inputName.GetText()) < 2 {
+		g.inputName.SetFieldTextColor(tcell.ColorRed)
+	} else {
+		g.inputName.SetFieldTextColor(cw)
+	}
+}
+
 // createAction создает поля для действий
 func (g *GameDisplay) createAction(key string, cmd string) *tview.TextView {
 	return tview.NewTextView().
