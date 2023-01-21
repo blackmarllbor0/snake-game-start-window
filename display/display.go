@@ -25,13 +25,18 @@ const (
 	cb = tcell.ColorBlack
 )
 
+const (
+	menu = "menu"
+	game = "game"
+)
+
 // Displaying функция запуска графического приложения с главного меню
 func (d *Display) Displaying() {
 	d.app = tview.NewApplication() // Графическое приложение
 	d.pages = tview.NewPages()
 
-	d.pages.AddPage("menu", d.initMain(), true, true)
-	d.pages.AddPage("game", d.Game.init(), true, false)
+	d.pages.AddPage(menu, d.initMain(), true, true)
+	d.pages.AddPage(game, d.Game.init(), true, false)
 
 	d.remote() // пульт управления нажатий клавиш
 
@@ -67,6 +72,10 @@ func (d *Display) getItemInMainBlock() bool {
 	return false
 }
 
+func (d *Display) SwitchToGamePage() {
+	d.pages.SwitchToPage(game)
+}
+
 // remote пульт управления нажатий
 func (d *Display) remote() {
 	d.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -79,8 +88,10 @@ func (d *Display) remote() {
 			d.GameDisplay.validateInput() // имя должно быть не меньше 2 символов
 		} else if event.Rune() == 's' && !d.GameDisplay.inputName.HasFocus() {
 			// при запуске игры сохроняем имя игрока в файл
-			players.WritePlayer(players.NewPlayer(d.GameDisplay.inputName.GetText()))
-			d.pages.SwitchToPage("game")
+			if len(d.GameDisplay.inputName.GetText()) > 1 {
+				players.WritePlayer(players.NewPlayer(d.GameDisplay.inputName.GetText()))
+				d.pages.SwitchToPage(game)
+			}
 		} else if event.Rune() == 'h' && !d.GameDisplay.inputName.HasFocus() {
 			if d.mainBlock.GetItemCount() < 4 {
 				d.mainBlock.AddItem(d.HelpModal.init(), 0, 0, true)
