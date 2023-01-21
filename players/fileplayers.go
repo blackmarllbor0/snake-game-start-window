@@ -102,25 +102,27 @@ func WritePlayer(player *Player) {
 
 	defer file.Close()
 
-	if _, err := file.WriteString(playerToString); err != nil {
-		panic(customerror.ErrorString(customerror.CustomError{
-			Message: "Что-то пошло не так во время записи в файл",
-			Error:   err,
-		}))
+	if !FindPlayer(player.name) {
+		if _, err := file.WriteString(playerToString); err != nil {
+			panic(customerror.ErrorString(customerror.CustomError{
+				Message: "Что-то пошло не так во время записи в файл",
+				Error:   err,
+			}))
+		}
 	}
 }
 
 // FindPlayer ищет игрока по имени и озращает второй аргумент типа bool
-func FindPlayer(name string) (*Player, bool) {
+func FindPlayer(name string) bool {
 	var players = GetPlayers()
 
 	for i := 0; i < len(players); i++ {
 		if players[i].name == name {
-			return players[i], true
+			return true
 		}
 	}
 
-	return &Player{}, false
+	return false
 }
 
 func CheckDir() {
