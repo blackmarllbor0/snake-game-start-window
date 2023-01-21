@@ -62,6 +62,8 @@ func (r *RecordDisplay) createList() *tview.List {
 				r.bestPlayers.AddItem(player, "", tcell.RuneVLine, nil)
 			}
 		}
+	} else if len(playerList) < 1 {
+		r.bestPlayers.AddItem("You can be", "the first", tcell.RuneVLine, nil)
 	} else {
 		for i := 0; i < len(playerList); i++ {
 			var currentPlayer = playerList[i]
